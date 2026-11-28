@@ -54,7 +54,13 @@ func LoadLibrary(path, lib string) (Lib, error) {
 //   - Linux/FreeBSD/Android: lib<name>.so
 //   - Windows: <name>.dll
 //   - Darwin/iOS: lib<name>.dylib
+//
+// A path that names a file is returned as it is: llama.cpp's xcframework links
+// every library into one, such as llama.framework/llama.
 func GetLibraryFilename(path, lib string) string {
+	if info, err := os.Stat(path); err == nil && !info.IsDir() {
+		return path
+	}
 	switch runtime.GOOS {
 	case "linux", "freebsd", "android":
 		return filepath.Join(path, fmt.Sprintf("lib%s.so", lib))

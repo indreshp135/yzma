@@ -1,6 +1,7 @@
 package loader
 
 import (
+	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -184,6 +185,19 @@ func TestGetLibraryFilename_DifferentLibNames(t *testing.T) {
 				t.Errorf("expected result to contain '%s', got '%s'", lib, result)
 			}
 		})
+	}
+}
+
+func TestGetLibraryFilename_File(t *testing.T) {
+	file := filepath.Join(t.TempDir(), "llama")
+	if err := os.WriteFile(file, nil, 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	for _, lib := range []string{"ggml", "llama", "mtmd"} {
+		if got := GetLibraryFilename(file, lib); got != file {
+			t.Errorf("GetLibraryFilename(%q, %q) = %q, want the file itself", file, lib, got)
+		}
 	}
 }
 
